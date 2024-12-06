@@ -19,7 +19,8 @@ export default {
                 photo: "https://upload.wikimedia.org/wikipedia/en/thumb/a/a6/Bender_Rodriguez.png/220px-Bender_Rodriguez.png",
                 curriculum: "asasasaasddfsdgvfdsdsffffgfsdgsdggsdgsdgsdasdfasfasfasffffffffffffffffffasasasaasddfsdgvfdsdsffasasasaasddfsdgvfdsdsffffgfsdgdsgdsgasasasaasddfsdgvfdsdsffffgfsdgdsgdsgsdgsdgsdgsdgsdgsdgsdgsdgdsgsdgsdgsdgssdgsdgsdgsdgsdgsdgsdgsdgdsgsdgsdgsdgsffgfsdgdsgdsgsdgsdgsdgsdgsdgsdgsdgsdgdsgsdgsdgsdgsgsdgsdgsdgsggsasa",
             },
-            apiUrl: "http://127.0.0.1:8000/api/profiles/edit/251",
+            editApiUrl: "http://127.0.0.1:8000/api/user/profiles/251",
+            getApiUrl: "http://127.0.0.1:8000/api/user/profiles/edit/251",
             errors: {
                 firstname: '',
                 lastname: "",
@@ -78,7 +79,7 @@ export default {
                         specialization: Array.isArray(this.formData.specialization) ? this.formData.specialization : [this.formData.specialization]
                     };
 
-                    axios.put(this.apiUrl, formDataToSend, {
+                    axios.put(this.editApiUrl, formDataToSend, {
                         headers: {
                             'Authorization': `Bearer ${this.token}`
                         }
@@ -127,7 +128,7 @@ export default {
         }
     },
     mounted() {
-        axios.get(this.apiUrl, {
+        axios.get(this.getApiUrl, {
             headers: {
                 'Authorization': `Bearer ${this.token}`
             }
