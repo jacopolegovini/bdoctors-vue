@@ -41,7 +41,7 @@ export default {
     },
     methods: {
         validateForm() {
-            this.errors = [];
+            this.errors = {};
             if (!this.formData.firstname) {
                 this.errors.firstname = 'Il nome è obbligatorio.';
             } else if (this.formData.firstname.length <= 2) {
@@ -71,24 +71,30 @@ export default {
 
             if (Object.keys(this.errors).length === 0) {
                 this.validated = true;
+                this.updateProfile();
+            }
+        },
+        async updateProfile() {
+            try {
+                const formDataToSend = {
+                    ...this.formData,
+                    specialization: Array.isArray(this.formData.specialization) ? this.formData.specialization : [this.formData.specialization]
+                };
 
-                if (this.validated) {
-                    const formDataToSend = {
-                        ...this.formData,
-                        specialization: Array.isArray(this.formData.specialization) ? this.formData.specialization : [this.formData.specialization]
-                    };
+                const response = await axios.put(this.apiUrl, formDataToSend, {
+                    headers: {
+                        'Authorization': `Bearer ${this.token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
 
-                    axios.put(this.apiUrl, formDataToSend, {
-                        headers: {
-                            'Authorization': `Bearer ${this.token}`
-                        }
-                    })
-                        .then(response => {
-                            console.log('Profile updated', response.data)
-                        })
-                        .catch(function (error) {
-                            console.error(error);
-                        });
+                console.log('Profile updated successfully', response.data);
+                this.$router.push(`/user/${this.formData.user_id}`);
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                this.validated = false;
+                if (error.response?.data?.errors) {
+                    this.errors = { ...this.errors, ...error.response.data.errors };
                 }
             }
         },
@@ -123,33 +129,33 @@ export default {
     },
     computed: {
         openProfile() {
-            this.$router.push('/user/:id');
+            this.$router.push(`/user/${this.formData.user_id}`);
         }
     },
-    mounted() {
-        axios.get(this.apiUrl, {
-            headers: {
-                'Authorization': `Bearer ${this.token}`
-            }
-        })
-            .then(response => {
-                const userData = response.data;
-                this.formData = {
-                    ...this.formData,
-                    firstname: userData.firstname,
-                    lastname: userData.lastname,
-                    email: userData.email,
-                    phone: userData.phone,
-                    office_address: userData.office_address,
-                    specialization: Array.isArray(userData.specialization) ? userData.specialization : [userData.specialization],
-                    services: userData.services,
-                    photo: userData.photo,
-                    curriculum: userData.curriculum
-                };
-            })
-            .catch(function (error) {
-                console.error("Errore nel caricamento dei dati:", error);
+    async mounted() {
+        try {
+            const response = await axios.get(this.apiUrl, {
+                headers: {
+                    'Authorization': `Bearer ${this.token}`
+                }
             });
+
+            const userData = response.data;
+            this.formData = {
+                ...this.formData,
+                firstname: userData.firstname,
+                lastname: userData.lastname,
+                email: userData.email,
+                phone: userData.phone,
+                office_address: userData.office_address,
+                specialization: Array.isArray(userData.specialization) ? userData.specialization : [userData.specialization],
+                services: userData.services,
+                photo: userData.photo,
+                curriculum: userData.curriculum
+            };
+        } catch (error) {
+            console.error("Error loading profile data:", error);
+        }
     }
 }
 
