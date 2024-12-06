@@ -28,12 +28,14 @@ export default {
 					localStorage.setItem('authToken', response.data.token);
 				}
 
-				console.log(response);
-				this.responseStatus = true;
-				this.$router.push({ name: 'dashboard', params: { id: response.data.user.id } });
+				if (response.data.success && response.data.data) {
+					this.responseStatus = true;
+					await this.$router.push(`/user/${response.data.data.id}`);
+				}
 
 			} catch (error) {
-				console.log(error);
+				this.responseStatus = false;
+				console.error('Login error:', error);
 			}
 		},
 		logout() {
