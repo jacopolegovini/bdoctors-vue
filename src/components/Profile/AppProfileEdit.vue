@@ -62,16 +62,23 @@ export default {
             if (!this.formData.phone) { this.errors.phone = "Il numero di telefono è obbligatorio." }
             else if (isNaN(this.formData.phone)) { this.errors.phone = "Il numero di telefono può contenere solo numeri" };
             if (!this.formData.office_address) this.errors.office_address = "L'indirizzo è obbligatorio.";
-            if (!this.formData.specialization) this.errors.specialization = "Inserire almeno una specializzazione.";
+            if (!this.formData.specialization || this.formData.specialization.length === 0) {
+                this.errors.specialization = "Inserire almeno una specializzazione.";
+            }
             if (!this.formData.services) this.errors.services = "Inserire almeno una prestazione.";
             // if (!this.formData.photo) this.errors.photo = "La foto è obbligatoria";
             // if (!this.formData.curriculum) this.errors.curriculum = "Il curriculum è obbligatorio.";
 
-            if (!this.errors.length) {
+            if (Object.keys(this.errors).length === 0) {
                 this.validated = true;
 
-                if (this.validated = true) {
-                    axios.put(this.apiUrl, this.formData, {
+                if (this.validated) {
+                    const formDataToSend = {
+                        ...this.formData,
+                        specialization: Array.isArray(this.formData.specialization) ? this.formData.specialization : [this.formData.specialization]
+                    };
+
+                    axios.put(this.apiUrl, formDataToSend, {
                         headers: {
                             'Authorization': `Bearer ${this.token}`
                         }
@@ -80,16 +87,10 @@ export default {
                             console.log('Profile updated', response.data)
                         })
                         .catch(function (error) {
-                            // handle error
                             console.error(error);
-                        })
-                        .finally(function () {
-                            // always executed
                         });
                 }
             }
-            console.log(this.formData);
-            console.log(this.errors);
         },
         validEmail(email) {
             const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -116,7 +117,8 @@ export default {
 
         updateSpecs(specializations) {
             this.formData.specialization = specializations;
-            console.log(this.formData.specialization);
+            this.errors.specialization = ''; // Reset error when specializations are updated
+            console.log('Updated specializations:', this.formData.specialization);
         },
     },
     computed: {
@@ -131,7 +133,6 @@ export default {
             }
         })
             .then(response => {
-                // Aggiorna i dati del form con quelli ricevuti dal server
                 const userData = response.data;
                 this.formData = {
                     ...this.formData,
@@ -140,7 +141,7 @@ export default {
                     email: userData.email,
                     phone: userData.phone,
                     office_address: userData.office_address,
-                    specialization: userData.specialization,
+                    specialization: Array.isArray(userData.specialization) ? userData.specialization : [userData.specialization],
                     services: userData.services,
                     photo: userData.photo,
                     curriculum: userData.curriculum
@@ -211,6 +212,9 @@ export default {
             <div class="mb-3 col-6">
                 <label for="specialization" class="form-label">Specializzazioni</label>
                 <Multiselect @send-values="updateSpecs" :initial-values="formData.specialization" />
+                <div class="invalid" v-if="errors.specialization">
+                    <p> {{ errors.specialization }} </p>
+                </div>
             </div>
             <div class="mb-3">
                 <label for="services" class="form-label">Prestazioni</label>
