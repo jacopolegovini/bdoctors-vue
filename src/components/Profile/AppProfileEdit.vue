@@ -42,7 +42,7 @@ export default {
     },
     methods: {
         validateForm() {
-            this.errors = [];
+            this.errors = {};
             if (!this.formData.firstname) {
                 this.errors.firstname = 'Il nome è obbligatorio.';
             } else if (this.formData.firstname.length <= 2) {
@@ -72,86 +72,89 @@ export default {
 
             if (Object.keys(this.errors).length === 0) {
                 this.validated = true;
-
-                if (this.validated) {
-                    const formDataToSend = {
-                        ...this.formData,
-                        specialization: Array.isArray(this.formData.specialization) ? this.formData.specialization : [this.formData.specialization]
-                    };
-
-                    axios.put(this.editApiUrl, formDataToSend, {
-                        headers: {
-                            'Authorization': `Bearer ${this.token}`
-                        }
-                    })
-                        .then(response => {
-                            console.log('Profile updated', response.data)
-                        })
-                        .catch(function (error) {
-                            console.error(error);
-                        });
-                }
+                this.updateProfile();
             }
         },
-        validEmail(email) {
-            const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-            return re.test(email);
-        },
-        validPassword(password) {
-            const lowercase = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
-            const uppercase = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
-            const numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-
-            let isLowercase = false;
-            let isUppercase = false;
-            let isNumber = false;
-
-            for (let i = 0; i < password.length; i++) {
-                const char = password[i];
-                if (lowercase.includes(char)) isLowercase = true;
-                if (uppercase.includes(char)) isUppercase = true;
-                if (numbers.includes(char)) isNumber = true;
-            }
-
-            return isLowercase && isUppercase && isNumber;
-        },
-
-        updateSpecs(specializations) {
-            this.formData.specialization = specializations;
-            this.errors.specialization = ''; // Reset error when specializations are updated
-            console.log('Updated specializations:', this.formData.specialization);
-        },
-    },
-    computed: {
-        openProfile() {
-            this.$router.push('/user/:id');
-        }
-    },
-    mounted() {
-        axios.get(this.getApiUrl, {
-            headers: {
-                'Authorization': `Bearer ${this.token}`
-            }
-        })
-            .then(response => {
-                const userData = response.data;
-                this.formData = {
+        async updateProfile() {
+            try {
+                const formDataToSend = {
                     ...this.formData,
-                    firstname: userData.firstname,
-                    lastname: userData.lastname,
-                    email: userData.email,
-                    phone: userData.phone,
-                    office_address: userData.office_address,
-                    specialization: Array.isArray(userData.specialization) ? userData.specialization : [userData.specialization],
-                    services: userData.services,
-                    photo: userData.photo,
-                    curriculum: userData.curriculum
+                    specialization: Array.isArray(this.formData.specialization) ? this.formData.specialization : [this.formData.specialization]
                 };
-            })
-            .catch(function (error) {
-                console.error("Errore nel caricamento dei dati:", error);
-            });
+
+                axios.put(this.editApiUrl, formDataToSend, {
+                    headers: {
+                        'Authorization': `Bearer ${this.token}`
+                    }
+                })
+                    .then(response => {
+                        console.log('Profile updated', response.data)
+                    })
+                    .catch(function (error) {
+                        console.error(error);
+                    });
+            }
+            }
+    },
+    validEmail(email) {
+        const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return re.test(email);
+    },
+    validPassword(password) {
+        const lowercase = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
+        const uppercase = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+        const numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
+        let isLowercase = false;
+        let isUppercase = false;
+        let isNumber = false;
+
+        for (let i = 0; i < password.length; i++) {
+            const char = password[i];
+            if (lowercase.includes(char)) isLowercase = true;
+            if (uppercase.includes(char)) isUppercase = true;
+            if (numbers.includes(char)) isNumber = true;
+        }
+
+        return isLowercase && isUppercase && isNumber;
+    },
+
+    updateSpecs(specializations) {
+        this.formData.specialization = specializations;
+        this.errors.specialization = ''; // Reset error when specializations are updated
+        console.log('Updated specializations:', this.formData.specialization);
+    },
+},
+computed: {
+    openProfile() {
+        this.$router.push(`/user/${this.formData.user_id}`);
     }
+},
+mounted() {
+    axios.get(this.getApiUrl, {
+        headers: {
+            'Authorization': `Bearer ${this.token}`
+        }
+    })
+        .then(response => {
+            const userData = response.data;
+            this.formData = {
+                ...this.formData,
+                firstname: userData.firstname,
+                lastname: userData.lastname,
+                email: userData.email,
+                phone: userData.phone,
+                office_address: userData.office_address,
+                specialization: Array.isArray(userData.specialization) ? userData.specialization : [userData.specialization],
+                services: userData.services,
+                photo: userData.photo,
+                curriculum: userData.curriculum
+            };
+        })
+        .catch(function (error) {
+            console.error("Errore nel caricamento dei dati:", error);
+        });
+}
 }
 
 </script>
