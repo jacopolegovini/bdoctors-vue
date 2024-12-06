@@ -6,8 +6,8 @@ import Multiselect from "../Generics/Multiselect.vue";
 export default {
     data() {
         return {
+            user_id: 251,
             formData: {
-                user_id: 251,
                 firstname: "",
                 lastname: "",
                 email: "",
@@ -19,8 +19,8 @@ export default {
                 photo: "https://upload.wikimedia.org/wikipedia/en/thumb/a/a6/Bender_Rodriguez.png/220px-Bender_Rodriguez.png",
                 curriculum: "asasasaasddfsdgvfdsdsffffgfsdgsdggsdgsdgsdasdfasfasfasffffffffffffffffffasasasaasddfsdgvfdsdsffasasasaasddfsdgvfdsdsffffgfsdgdsgdsgasasasaasddfsdgvfdsdsffffgfsdgdsgdsgsdgsdgsdgsdgsdgsdgsdgsdgdsgsdgsdgsdgssdgsdgsdgsdgsdgsdgsdgsdgdsgsdgsdgsdgsffgfsdgdsgdsgsdgsdgsdgsdgsdgsdgsdgsdgdsgsdgsdgsdgsgsdgsdgsdgsggsasa",
             },
-            editApiUrl: "http://127.0.0.1:8000/api/user/profiles/251",
-            getApiUrl: "http://127.0.0.1:8000/api/user/profiles/edit/251",
+            //editApiUrl: `http://127.0.0.1:8000/api/user/profiles/${this.formData.user_id}`,
+            getApiUrl: `http://127.0.0.1:8000/api/user/profiles/edit/10`,
             errors: {
                 firstname: '',
                 lastname: "",
@@ -75,12 +75,13 @@ export default {
                 this.updateProfile();
             }
         },
+
         async updateProfile() {
             try {
                 const formDataToSend = {
                     ...this.formData,
                     specialization: Array.isArray(this.formData.specialization) ? this.formData.specialization : [this.formData.specialization]
-                };
+                }
 
                 axios.put(this.editApiUrl, formDataToSend, {
                     headers: {
@@ -92,70 +93,63 @@ export default {
                     })
                     .catch(function (error) {
                         console.error(error);
-                    });
+                    })
+
+
+            } catch (error) {
+                console.log(error);
             }
+        },
+
+        validEmail(email) {
+            const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+            return re.test(email);
+        },
+        validPassword(password) {
+            const lowercase = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
+            const uppercase = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+            const numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
+            let isLowercase = false;
+            let isUppercase = false;
+            let isNumber = false;
+
+            for (let i = 0; i < password.length; i++) {
+                const char = password[i];
+                if (lowercase.includes(char)) isLowercase = true;
+                if (uppercase.includes(char)) isUppercase = true;
+                if (numbers.includes(char)) isNumber = true;
             }
-    },
-    validEmail(email) {
-        const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-        return re.test(email);
-    },
-    validPassword(password) {
-        const lowercase = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
-        const uppercase = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
-        const numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
 
-        let isLowercase = false;
-        let isUppercase = false;
-        let isNumber = false;
+            return isLowercase && isUppercase && isNumber;
+        },
 
-        for (let i = 0; i < password.length; i++) {
-            const char = password[i];
-            if (lowercase.includes(char)) isLowercase = true;
-            if (uppercase.includes(char)) isUppercase = true;
-            if (numbers.includes(char)) isNumber = true;
+        updateSpecs(specializations) {
+            this.formData.specialization = specializations;
+            this.errors.specialization = ''; // Reset error when specializations are updated
+            console.log('Updated specializations:', this.formData.specialization);
+        },
+    },
+    computed: {
+        openProfile() {
+            this.$router.push(`/user/${this.formData.user_id}`);
         }
-
-        return isLowercase && isUppercase && isNumber;
     },
-
-    updateSpecs(specializations) {
-        this.formData.specialization = specializations;
-        this.errors.specialization = ''; // Reset error when specializations are updated
-        console.log('Updated specializations:', this.formData.specialization);
-    },
-},
-computed: {
-    openProfile() {
-        this.$router.push(`/user/${this.formData.user_id}`);
-    }
-},
-mounted() {
-    axios.get(this.getApiUrl, {
-        headers: {
-            'Authorization': `Bearer ${this.token}`
-        }
-    })
-        .then(response => {
-            const userData = response.data;
-            this.formData = {
-                ...this.formData,
-                firstname: userData.firstname,
-                lastname: userData.lastname,
-                email: userData.email,
-                phone: userData.phone,
-                office_address: userData.office_address,
-                specialization: Array.isArray(userData.specialization) ? userData.specialization : [userData.specialization],
-                services: userData.services,
-                photo: userData.photo,
-                curriculum: userData.curriculum
-            };
+    mounted() {
+        axios.get(this.getApiUrl, {
+            headers: {
+                'Authorization': `Bearer ${this.token}`
+            }
         })
-        .catch(function (error) {
-            console.error("Errore nel caricamento dei dati:", error);
-        });
+            .then(response => {
+                this.formData = response.data;
+            })
+            .catch(function (error) {
+                console.error("Errore nel caricamento dei dati:", error);
+            });
+    }
 }
-}
+
 
 </script>
 
