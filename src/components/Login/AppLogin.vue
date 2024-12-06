@@ -10,19 +10,26 @@ export default {
 		}
 	},
 	methods: {
-		sendLoginData() {
-			axios.post('http://127.0.0.1:8000/api/login', {
-				email: this.inputEmail,
-				password: this.inputPassword
-			})
-				.then(response => {
-					console.log(response);
-					this.responseStatus = true;
-					this.$router.push({ name: 'dashboard', params: { id: response.data.user.id } })
-				})
-				.catch(function (error) {
-					console.log(error);
+		async sendLoginData() {
+			try {
+				// Set sanctum cookie
+				await axios.get('http://127.0.0.1:8000/sanctum/csrf-cookie');
+
+				// Login request
+				const response = await axios.post('http://127.0.0.1:8000/api/login', {
+					email: this.inputEmail,
+					password: this.inputPassword
+				}, {
+					withCredentials: true
 				});
+
+				console.log(response);
+				this.responseStatus = true;
+				this.$router.push({ name: 'dashboard', params: { id: response.data.user.id } });
+
+			} catch (error) {
+				console.log(error);
+			}
 		},
 	}
 }
