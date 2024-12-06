@@ -1,6 +1,22 @@
 <script>
 import axios from 'axios';
 
+// Add axios interceptor for authentication
+axios.interceptors.request.use(
+	config => {
+		const token = localStorage.getItem('authToken');
+		if (token) {
+			config.headers['Authorization'] = `Bearer ${token}`;
+			config.headers['Accept'] = 'application/json';
+			config.withCredentials = true;
+		}
+		return config;
+	},
+	error => {
+		return Promise.reject(error);
+	}
+);
+
 export default {
 	data() {
 		return {
@@ -8,6 +24,9 @@ export default {
 			inputPassword: '',
 			responseStatus: false,
 		}
+	},
+	created() {
+		// No need for token setup here anymore as it's handled by the interceptor
 	},
 	methods: {
 		async sendLoginData() {
@@ -39,7 +58,6 @@ export default {
 			}
 		},
 		logout() {
-			// Rimuovi il token dal localStorage
 			localStorage.removeItem('authToken');
 			this.$router.push('/');
 		}
