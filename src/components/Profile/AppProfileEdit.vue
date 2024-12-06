@@ -33,6 +33,7 @@ export default {
                 curriculum: ""
             },
             validated: false,
+            token: localStorage.getItem('authToken')
         }
     },
     components: {
@@ -86,7 +87,11 @@ export default {
                 this.validated = true;
 
                 if (this.validated = true) {
-                    axios.put(this.apiUrl, this.formData)
+                    axios.put(this.apiUrl, this.formData, {
+                        headers: {
+                            'Authorization': `Bearer ${this.token}`
+                        }
+                    })
                         .then(response => {
                             console.log('Profile updated', response.data)
                         })

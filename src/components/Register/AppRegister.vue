@@ -41,27 +41,39 @@ export default {
 			if (!this.errors.length) return true;
 			return false
 		},
-		sendRegistrationData() {
+		async sendRegistrationData() {
 			// Run the validation to control if it can move forward
 			if (!this.checkForm()) return
-			axios.post('http://127.0.0.1:8000/api/register', {
-				first_name: this.firstName,
-				last_name: this.lastName,
-				home_address: this.homeAddress,
-				specialization_id: this.specializations[0].id,
-				email: this.email,
-				password: this.password,
-				password_confirmation: this.passwordConfirmation
-			})
-				.then(response => {
-					console.log(response);
-					this.responseStatus = true;
-					this.$router.push('/user/login')
 
-				})
-				.catch(function (error) {
-					console.log(error);
+			try {
+				// Set sanctum cookie
+				await axios.get('http://127.0.0.1:8000/sanctum/csrf-cookie');
+
+				// Register request
+				const response = await axios.post('http://127.0.0.1:8000/api/register', {
+					first_name: this.firstName,
+					last_name: this.lastName,
+					home_address: this.homeAddress,
+					specialization_id: this.specializations[0].id,
+					email: this.email,
+					password: this.password,
+					password_confirmation: this.passwordConfirmation
+				}, {
+					withCredentials: true
 				});
+
+				// Salva il token di autenticazione nel localStorage
+				if (response.data.token) {
+					localStorage.setItem('authToken', response.data.token);
+				}
+
+				console.log(response);
+				this.responseStatus = true;
+				this.$router.push('/user/login');
+
+			} catch (error) {
+				console.log(error);
+			}
 		},
 	},
 	components: {

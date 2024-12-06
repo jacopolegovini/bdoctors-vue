@@ -23,6 +23,11 @@ export default {
 					withCredentials: true
 				});
 
+				// Salva il token nel localStorage
+				if (response.data.token) {
+					localStorage.setItem('authToken', response.data.token);
+				}
+
 				console.log(response);
 				this.responseStatus = true;
 				this.$router.push({ name: 'dashboard', params: { id: response.data.user.id } });
@@ -31,6 +36,11 @@ export default {
 				console.log(error);
 			}
 		},
+		logout() {
+			// Rimuovi il token dal localStorage
+			localStorage.removeItem('authToken');
+			this.$router.push('/');
+		}
 	}
 }
 </script>
