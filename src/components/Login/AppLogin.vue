@@ -1,14 +1,17 @@
 <script>
 import axios from 'axios';
 
+// Configure axios defaults
+axios.defaults.baseURL = 'http://127.0.0.1:8000';
+axios.defaults.headers.common['Accept'] = 'application/json';
+axios.defaults.withCredentials = true;
+
 // Add axios interceptor for authentication
 axios.interceptors.request.use(
 	config => {
 		const token = localStorage.getItem('authToken');
 		if (token) {
 			config.headers['Authorization'] = `Bearer ${token}`;
-			config.headers['Accept'] = 'application/json';
-			config.withCredentials = true;
 		}
 		return config;
 	},
@@ -25,21 +28,13 @@ export default {
 			responseStatus: false,
 		}
 	},
-	created() {
-		// No need for token setup here anymore as it's handled by the interceptor
-	},
 	methods: {
 		async sendLoginData() {
 			try {
-				// Set sanctum cookie
-				await axios.get('http://127.0.0.1:8000/sanctum/csrf-cookie');
-
 				// Login request
-				const response = await axios.post('http://127.0.0.1:8000/api/login', {
+				const response = await axios.post('/api/login', {
 					email: this.inputEmail,
 					password: this.inputPassword
-				}, {
-					withCredentials: true
 				});
 
 				// Salva il token nel localStorage
