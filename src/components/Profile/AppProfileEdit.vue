@@ -40,22 +40,6 @@ export default {
         Multiselect
     },
     methods: {
-        // updateForm() {
-
-        //     axios.post('/user', this.formData)
-        //         .then((response) => {
-        //             console.log(response);
-        //             console.log("success", response);
-        //         })
-        //         .catch((error) => {
-        //             this.errors = response.result.errors;
-        //             console.log(response.result.errors);
-        //         });
-
-        //     redirect
-        //     this.$router.push({ name: 'routename' })
-        // },
-
         validateForm() {
             this.errors = [];
             if (!this.formData.firstname) {
@@ -137,30 +121,35 @@ export default {
     },
     computed: {
         openProfile() {
-            // Once the user's been redirected to his profile, the modal's backdrop disappears
-            // const backdrop = document.querySelector('.modal-backdrop');
-            // if (backdrop) {
-            //     backdrop.remove();
-            // }
-            // redirect to user profile
             this.$router.push('/user/:id');
         }
     },
-    // mounted() {
-    //     axios.get(this.apiUrl, this.formData)
-    //         .then(response => {
-    //             this.formData = response.data;
-    //             console.log(response)
-    //             console.log('formData after call', this.formData);
-    //         })
-    //         .catch(function (error) {
-    //             // handle error
-    //             console.error("failed", error);
-    //         })
-    //         .finally(function () {
-    //             // always executed
-    //         });
-    // }
+    mounted() {
+        axios.get(this.apiUrl, {
+            headers: {
+                'Authorization': `Bearer ${this.token}`
+            }
+        })
+            .then(response => {
+                // Aggiorna i dati del form con quelli ricevuti dal server
+                const userData = response.data;
+                this.formData = {
+                    ...this.formData,
+                    firstname: userData.firstname,
+                    lastname: userData.lastname,
+                    email: userData.email,
+                    phone: userData.phone,
+                    office_address: userData.office_address,
+                    specialization: userData.specialization,
+                    services: userData.services,
+                    photo: userData.photo,
+                    curriculum: userData.curriculum
+                };
+            })
+            .catch(function (error) {
+                console.error("Errore nel caricamento dei dati:", error);
+            });
+    }
 }
 
 </script>
@@ -219,19 +208,9 @@ export default {
                     <p> {{ errors.office_address }} </p>
                 </div>
             </div>
-            <!-- <div class="mb-3 col-6">
-                    <label for="specialization" class="form-label">Specializzazioni</label>
-                    <select class="form-select" aria-label="Default select example" id="specialization"
-                        v-model="formData.specialization" >
-                        <option disabled selected>Seleziona la/e tua/e specializzazione/i</option>
-                        <option value="surgery">Chirurgia</option>
-                        <option value="cardiology">Cardiologia</option>
-                        <option value="ophthalmology">Oculistica</option>
-                    </select>
-                </div> -->
             <div class="mb-3 col-6">
                 <label for="specialization" class="form-label">Specializzazioni</label>
-                <Multiselect @send-values="updateSpecs" />
+                <Multiselect @send-values="updateSpecs" :initial-values="formData.specialization" />
             </div>
             <div class="mb-3">
                 <label for="services" class="form-label">Prestazioni</label>
@@ -244,7 +223,7 @@ export default {
             <div class="mb-3">
                 <label for="photo" class="form-label">Foto profilo</label>
                 <input type="text" class="form-control" :class="{ 'invalid-input': errors.photo }" id="photo"
-                    placeholder="Inserisci un file valido" @change="formData.photo" required>
+                    placeholder="Inserisci un file valido" v-model="formData.photo" required>
                 <div class="invalid" v-if="errors.photo">
                     <p> {{ errors.photo }} </p>
                 </div>
@@ -253,14 +232,12 @@ export default {
                 <label for="curriculum" class="form-label">Curriculum
                     Vitae</label>
                 <input type="text" class="form-control" :class="{ 'invalid-input': errors.curriculum }" id="curriculum"
-                    placeholder="Inserisci un file valido" @change="formData.curriculum" required>
+                    placeholder="Inserisci un file valido" v-model="formData.curriculum" required>
                 <div class="invalid" v-if="errors.curriculum">
                     <p> {{ errors.curriculum }} </p>
                 </div>
             </div>
             <div class="mb-3">
-                <!-- <button type="submit" class="btn me-2 btn-submit">Modifica</button>
-                    <button type="reset" class="btn btn-reset">Reset</button> -->
                 <button type="submit" class="btn me-2 btn-submit" data-bs-toggle="myModal"
                     data-bs-target="myModal">Modifica</button>
                 <button type="reset" class="btn btn-reset">Reset</button>
