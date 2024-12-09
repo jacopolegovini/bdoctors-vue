@@ -7,6 +7,7 @@ export default {
 			inputEmail: '',
 			inputPassword: '',
 			responseStatus: false,
+			errorMessage: ''
 		}
 	},
 	methods: {
@@ -17,16 +18,24 @@ export default {
 					password: this.inputPassword
 				});
 
-				if (response.data.token) {
+				if (response.data.success && response.data.token) {
+					// Salva il token nel localStorage
 					localStorage.setItem('authToken', response.data.token);
-				}
 
-				if (response.data.success && response.data.data) {
 					this.responseStatus = true;
-					await this.$router.push(`/user/${response.data.data.id}`);
+					this.errorMessage = '';
+
+					// Redirect alla dashboard
+					if (response.data.data && response.data.data.id) {
+						await this.$router.push(`/user/${response.data.data.id}`);
+					}
+				} else {
+					this.responseStatus = false;
+					this.errorMessage = 'Login fallito: dati non validi';
 				}
 			} catch (error) {
 				this.responseStatus = false;
+				this.errorMessage = error.message || 'Errore durante il login';
 				console.error('Login error:', error);
 			}
 		},
@@ -49,12 +58,13 @@ export default {
 			<div class="col-12">
 				<!-- Password input -->
 				<label for="password-input" class="badge rounded-pill">Password</label>
-				<input type="text" id="password-input" class="form-control mb-3" v-model="inputPassword">
+				<input type="password" id="password-input" class="form-control mb-3" v-model="inputPassword">
 			</div>
 			<!-- Button wrappers -->
 			<div class="buttons-wrapper col-12">
 				<button type="submit" class="btn btn-primary mt-4 mb-3" id="login-button">Login</button>
-				<div class="mt-3" v-if="responseStatus">Accesso effettuato</div>
+				<div v-if="errorMessage" class="alert alert-danger mt-3">{{ errorMessage }}</div>
+				<div class="alert alert-success mt-3" v-if="responseStatus">Accesso effettuato</div>
 			</div>
 		</div>
 	</form>
