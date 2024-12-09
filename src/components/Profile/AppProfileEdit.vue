@@ -1,6 +1,9 @@
 <script>
 import axios from "axios";
 import Multiselect from "../Generics/Multiselect.vue";
+import PhotoUpload from "../Generics/PhotoUpload.vue";
+import CvUpload from "../Generics/CvUpload.vue";
+import { store } from '../../../js/store.js';
 
 
 export default {
@@ -8,27 +11,29 @@ export default {
         return {
             user_id: 251,
             formData: {
-                firstname: "",
-                lastname: "",
+                store,
+                user_id: '',
+                first_name: "",
+                last_name: "",
                 email: "",
                 password: "",
                 phone: "",
                 office_address: "",
-                specialization: [],
+                oldSpecializations: [],
+                specializations: [],
                 services: "",
-                photo: "https://upload.wikimedia.org/wikipedia/en/thumb/a/a6/Bender_Rodriguez.png/220px-Bender_Rodriguez.png",
-                curriculum: "asasasaasddfsdgvfdsdsffffgfsdgsdggsdgsdgsdasdfasfasfasffffffffffffffffffasasasaasddfsdgvfdsdsffasasasaasddfsdgvfdsdsffffgfsdgdsgdsgasasasaasddfsdgvfdsdsffffgfsdgdsgdsgsdgsdgsdgsdgsdgsdgsdgsdgdsgsdgsdgsdgssdgsdgsdgsdgsdgsdgsdgsdgdsgsdgsdgsdgsffgfsdgdsgdsgsdgsdgsdgsdgsdgsdgsdgsdgdsgsdgsdgsdgsgsdgsdgsdgsggsasa",
+                photo: null,
+                curriculum: null,
             },
-            //editApiUrl: `http://127.0.0.1:8000/api/user/profiles/${this.formData.user_id}`,
-            getApiUrl: `http://127.0.0.1:8000/api/user/profiles/edit/10`,
+            apiUrl: 'http://127.0.0.1:8000/api/profiles/edit/',
             errors: {
-                firstname: '',
-                lastname: "",
+                first_name: '',
+                last_name: "",
                 email: "",
                 password: "",
                 phone: "",
                 office_address: "",
-                specialization: '',
+                specializations: '',
                 services: "",
                 photo: "",
                 curriculum: ""
@@ -38,20 +43,38 @@ export default {
         }
     },
     components: {
-        Multiselect
+        Multiselect,
+        PhotoUpload,
+        CvUpload
     },
     methods: {
+
+        updateForm() {
+            axios.put(this.formData.store.apiUri + 'profiles/edit/' + this.formData.store.informationPageId, this.formData)
+                .then(response => {
+                    console.log('store api', this.formData.store.apiUri + 'profiles/edit/' + this.formData.store.informationPageId)
+                    console.log('Profile updated', response.data)
+                })
+                .catch(function (error) {
+                    // handle error
+                    console.error(error);
+                })
+                .finally(function () {
+                    // always executed
+                });
+        },
+
         validateForm() {
-            this.errors = {};
-            if (!this.formData.firstname) {
-                this.errors.firstname = 'Il nome è obbligatorio.';
-            } else if (this.formData.firstname.length <= 2) {
-                this.errors.firstname = 'Il nome deve contenere almeno 3 caratteri.';
+            this.errors = [];
+            if (!this.formData.first_name) {
+                this.errors.first_name = 'Il nome è obbligatorio.';
+            } else if (this.formData.first_name.length <= 2) {
+                this.errors.first_name = 'Il nome deve contenere almeno 3 caratteri.';
             };
-            if (!this.formData.lastname) {
-                this.errors.lastname = "Il cognome è obbligatorio."
-            } else if (this.formData.lastname.length <= 2) {
-                this.errors.lastname = "Il cognome deve contenere almeno 3 caratteri."
+            if (!this.formData.last_name) {
+                this.errors.last_name = "Il cognome è obbligatorio."
+            } else if (this.formData.last_name.length <= 2) {
+                this.errors.last_name = "Il cognome deve contenere almeno 3 caratteri."
             };
             if (!this.formData.email) {
                 this.errors.email = "L'email è obbligatoria.";
@@ -63,42 +86,20 @@ export default {
             if (!this.formData.phone) { this.errors.phone = "Il numero di telefono è obbligatorio." }
             else if (isNaN(this.formData.phone)) { this.errors.phone = "Il numero di telefono può contenere solo numeri" };
             if (!this.formData.office_address) this.errors.office_address = "L'indirizzo è obbligatorio.";
-            if (!this.formData.specialization || this.formData.specialization.length === 0) {
-                this.errors.specialization = "Inserire almeno una specializzazione.";
-            }
+            if (!this.formData.oldSpecializations && !this.formData.specializations) this.errors.specializations = "Inserire almeno una specializzazione.";
             if (!this.formData.services) this.errors.services = "Inserire almeno una prestazione.";
             // if (!this.formData.photo) this.errors.photo = "La foto è obbligatoria";
             // if (!this.formData.curriculum) this.errors.curriculum = "Il curriculum è obbligatorio.";
 
             if (Object.keys(this.errors).length === 0) {
                 this.validated = true;
-                this.updateProfile();
-            }
-        },
 
-        async updateProfile() {
-            try {
-                const formDataToSend = {
-                    ...this.formData,
-                    specialization: Array.isArray(this.formData.specialization) ? this.formData.specialization : [this.formData.specialization]
+                if (this.validated = true) {
+                    this.updateForm();
                 }
-
-                axios.put(this.editApiUrl, formDataToSend, {
-                    headers: {
-                        'Authorization': `Bearer ${this.token}`
-                    }
-                })
-                    .then(response => {
-                        console.log('Profile updated', response.data)
-                    })
-                    .catch(function (error) {
-                        console.error(error);
-                    })
-
-
-            } catch (error) {
-                console.log(error);
             }
+            console.log(this.formData);
+            console.log(this.errors);
         },
 
         validEmail(email) {
@@ -125,29 +126,44 @@ export default {
         },
 
         updateSpecs(specializations) {
-            this.formData.specialization = specializations;
-            this.errors.specialization = ''; // Reset error when specializations are updated
-            console.log('Updated specializations:', this.formData.specialization);
+            this.formData.specializations = specializations;
+            console.log(this.formData.specializations);
         },
     },
     computed: {
         openProfile() {
-            this.$router.push(`/user/${this.formData.user_id}`);
+            // Once the user's been redirected to his profile, the modal's backdrop disappears
+            // const backdrop = document.querySelector('.modal-backdrop');
+            // if (backdrop) {
+            //     backdrop.remove();
+            // }
+            // redirect to user profile
+            this.$router.push('/user/:id');
         }
     },
-    mounted() {
-        axios.get(this.getApiUrl, {
-            headers: {
-                'Authorization': `Bearer ${this.token}`
-            }
-        })
+    created() {
+        axios.get(this.formData.store.apiUri + 'profiles/edit/' + this.formData.store.informationPageId, this.formData)
             .then(response => {
-                this.formData = response.data;
+                console.log('store api', this.formData.store.apiUri)
+
+                this.formData = response.data.data;
+                this.formData.first_name = response.data.data.doctor.first_name;
+                this.formData.last_name = response.data.data.doctor.last_name;
+                this.formData.email = response.data.data.doctor.email;
+                this.formData.password = response.data.data.doctor.password;
+                this.formData.oldSpecializations = response.data.data.doctor.specializations;
+
+                console.log(response)
+                console.log('formData after call', this.formData);
             })
             .catch(function (error) {
-                console.error("Errore nel caricamento dei dati:", error);
+                // handle error
+                console.error("failed", error);
+            })
+            .finally(function () {
+                // always executed
             });
-    }
+    },
 }
 
 
@@ -160,19 +176,19 @@ export default {
         <form action="" method="PUT" class="row py-4 my-4" id="edit-form" @submit.prevent="validateForm" novalidate>
 
             <div class="mb-3 col-4">
-                <label for="firstname" class="form-label">Nome</label>
-                <input type="text" class="form-control" :class="{ 'invalid-input': errors.firstname }" id="firstname"
-                    v-model="formData.firstname" required>
-                <div class="invalid" v-if="errors.firstname">
-                    <p> {{ errors.firstname }} </p>
+                <label for="first_name" class="form-label">Nome</label>
+                <input type="text" class="form-control" :class="{ 'invalid-input': errors.first_name }" id="first_name"
+                    v-model="formData.first_name" required>
+                <div class="invalid" v-if="errors.first_name">
+                    <p> {{ errors.first_name }} </p>
                 </div>
             </div>
             <div class="mb-3 col-4">
-                <label for="lastname" class="form-label">Cognome</label>
-                <input type="text" class="form-control" :class="{ 'invalid-input': errors.lastname }" id="lastname"
-                    v-model="formData.lastname" required>
-                <div class="invalid" v-if="errors.lastname">
-                    <p> {{ errors.lastname }} </p>
+                <label for="last_name" class="form-label">Cognome</label>
+                <input type="text" class="form-control" :class="{ 'invalid-input': errors.last_name }" id="last_name"
+                    v-model="formData.last_name" required>
+                <div class="invalid" v-if="errors.last_name">
+                    <p> {{ errors.last_name }} </p>
                 </div>
             </div>
             <div class="mb-3 col-4">
@@ -207,12 +223,19 @@ export default {
                     <p> {{ errors.office_address }} </p>
                 </div>
             </div>
+            <!-- <div class="mb-3 col-6">
+                    <label for="specializations" class="form-label">Specializzazioni</label>
+                    <select class="form-select" aria-label="Default select example" id="specializations"
+                        v-model="formData.specializations" >
+                        <option disabled selected>Seleziona la/e tua/e specializzazione/i</option>
+                        <option value="surgery">Chirurgia</option>
+                        <option value="cardiology">Cardiologia</option>
+                        <option value="ophthalmology">Oculistica</option>
+                    </select>
+                </div> -->
             <div class="mb-3 col-6">
-                <label for="specialization" class="form-label">Specializzazioni</label>
-                <Multiselect @send-values="updateSpecs" :initial-values="formData.specialization" />
-                <div class="invalid" v-if="errors.specialization">
-                    <p> {{ errors.specialization }} </p>
-                </div>
+                <label for="specializations" class="form-label">Specializzazioni</label>
+                <Multiselect @send-values="updateSpecs" :specializations="formData.oldSpecializations" />
             </div>
             <div class="mb-3">
                 <label for="services" class="form-label">Prestazioni</label>
@@ -222,19 +245,21 @@ export default {
                     <p> {{ errors.services }} </p>
                 </div>
             </div>
-            <div class="mb-3">
+            <div class="mb-3 d-flex flex-column col-6">
                 <label for="photo" class="form-label">Foto profilo</label>
-                <input type="text" class="form-control" :class="{ 'invalid-input': errors.photo }" id="photo"
-                    placeholder="Inserisci un file valido" v-model="formData.photo" required>
+                <PhotoUpload v-model="formData.photo"></PhotoUpload>
+                <!-- <input type="text" class="form-control" :class="{ 'invalid-input': errors.photo }" id="photo"
+                    placeholder="Inserisci un file valido" @change="formData.photo" required> -->
                 <div class="invalid" v-if="errors.photo">
                     <p> {{ errors.photo }} </p>
                 </div>
             </div>
-            <div class="mb-3">
+            <div class="mb-3 d-flex flex-column col-6">
                 <label for="curriculum" class="form-label">Curriculum
                     Vitae</label>
-                <input type="text" class="form-control" :class="{ 'invalid-input': errors.curriculum }" id="curriculum"
-                    placeholder="Inserisci un file valido" v-model="formData.curriculum" required>
+                <CvUpload v-model="formData.curriculum"></CvUpload>
+                <!-- <input type="text" class="form-control" :class="{ 'invalid-input': errors.curriculum }" id="curriculum"
+                    placeholder="Inserisci un file valido" @change="formData.curriculum" required> -->
                 <div class="invalid" v-if="errors.curriculum">
                     <p> {{ errors.curriculum }} </p>
                 </div>

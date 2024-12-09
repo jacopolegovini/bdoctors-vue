@@ -1,24 +1,5 @@
 <script>
-import axios from 'axios';
-
-// Configure axios defaults
-axios.defaults.baseURL = 'http://127.0.0.1:8000';
-axios.defaults.headers.common['Accept'] = 'application/json';
-axios.defaults.withCredentials = true;
-
-// Add axios interceptor for authentication
-axios.interceptors.request.use(
-	config => {
-		const token = localStorage.getItem('authToken');
-		if (token) {
-			config.headers['Authorization'] = `Bearer ${token}`;
-		}
-		return config;
-	},
-	error => {
-		return Promise.reject(error);
-	}
-);
+import axios from '../../axios';
 
 export default {
 	data() {
@@ -31,13 +12,11 @@ export default {
 	methods: {
 		async sendLoginData() {
 			try {
-				// Login request
 				const response = await axios.post('/api/login', {
 					email: this.inputEmail,
 					password: this.inputPassword
 				});
 
-				// Salva il token nel localStorage
 				if (response.data.token) {
 					localStorage.setItem('authToken', response.data.token);
 				}
@@ -46,7 +25,6 @@ export default {
 					this.responseStatus = true;
 					await this.$router.push(`/user/${response.data.data.id}`);
 				}
-
 			} catch (error) {
 				this.responseStatus = false;
 				console.error('Login error:', error);
