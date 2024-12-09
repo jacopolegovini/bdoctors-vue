@@ -10,7 +10,7 @@ axios.defaults.baseURL = 'http://localhost:8000/' // backend URL
 axios.defaults.withXSRFToken = true
 
 // Get CSRF cookie
-await axios.get('sanctum/csrf-cookie')
+await axios.get('http://localhost:8000/sanctum/csrf-cookie', { withCredentials: true })
 
 // Create and mount Vue app
 createApp(App).use(router).mount('#app')

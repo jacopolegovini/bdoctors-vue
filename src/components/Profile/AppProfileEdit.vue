@@ -1,5 +1,5 @@
 <script>
-import axios from "axios";
+import axios from '../../axios';
 import Multiselect from "../Generics/Multiselect.vue";
 import PhotoUpload from "../Generics/PhotoUpload.vue";
 import CvUpload from "../Generics/CvUpload.vue";

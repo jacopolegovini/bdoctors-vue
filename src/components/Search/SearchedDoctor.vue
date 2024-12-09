@@ -92,6 +92,4 @@ img {
     border: 3px solid #65B0FF;
     height: 200px;
 }
-
-.doctor-information {}
 </style>
