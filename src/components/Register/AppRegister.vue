@@ -62,23 +62,22 @@ export default {
 		async sendRegistrationData() {
 			// Run the validation to control if it can move forward
 			if (!this.checkFormValidity()) return
-			axios.post('http://127.0.0.1:8000/api/register', {
-				first_name: this.firstName,
-				last_name: this.lastName,
-				home_address: this.homeAddress,
-				specialization_id: this.specializations,
-				email: this.email,
-				password: this.password,
-				password_confirmation: this.passwordConfirmation
-			})
-				.then(response => {
-					console.log(response);
-					this.responseStatus = true;
-					this.$router.push('/user/login')
-
-				} catch (error) {
-					console.log(error);
-				}
+			try {
+				const response = await axios.post('http://127.0.0.1:8000/api/register', {
+					first_name: this.firstName,
+					last_name: this.lastName,
+					home_address: this.homeAddress,
+					specialization_id: this.specializations,
+					email: this.email,
+					password: this.password,
+					password_confirmation: this.passwordConfirmation
+				});
+				console.log(response);
+				this.responseStatus = true;
+				this.$router.push('/user/login');
+			} catch (error) {
+				console.log(error);
+			}
 		},
 	},
 	components: {
