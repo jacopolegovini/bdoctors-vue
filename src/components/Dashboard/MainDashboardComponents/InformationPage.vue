@@ -12,14 +12,14 @@ export default {
     },
     methods: {
         getProfileData() {
-            axios.get(this.store.apiUri + 'profiles/' + this.store.informationPageId)
+						// Axios's get request to retrieve profile data of loggedUserId
+            axios.get(this.store.apiUri + 'profiles/' + this.store.loggedUserId)
                 .then(response => {
                     console.log(response);
                     this.profileData = response.data.data;
 
-                    // Data da condividere all'interno degli altri componenti
-                    store.profileDataGeneral = response.data.data
-                    localStorage.setItem('user_id', response.data.data.doctor.id)
+                    // Data to be shared inside other components
+                    this.store.profileDataGeneral = response.data.data
                 })
                 .catch(function (error) {
                     console.log(error);

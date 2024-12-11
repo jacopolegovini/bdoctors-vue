@@ -17,7 +17,7 @@ export default {
         MainDashboard,
     },
 		created: function () {
-			this.store.informationPageId = this.$route.params.id
+			// this.store.informationPageId = this.$route.params.id
 		}
 }
 </script>

@@ -2,6 +2,9 @@ import { reactive } from 'vue'
 
 
 export const store = reactive({
+	//Login state
+	loggedUserId: 0,
+
   // Variable for change content inside dashboard
   informationPage: true,
   messagePage: false,

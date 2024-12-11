@@ -1,5 +1,6 @@
 <script>
 import axios from 'axios';
+import confAxios from '../../axios';
 
 export default {
 	data() {
@@ -14,16 +15,31 @@ export default {
 			axios.post('http://127.0.0.1:8000/api/login', {
 				email: this.inputEmail,
 				password: this.inputPassword
-			})
+				})
 				.then(response => {
 					console.log(response);
 					this.responseStatus = true;
-					this.$router.push({ name: 'dashboard', params: { id: response.data.user.id } })
+					// Redirect to current userId profile info 
+					this.$router.push({ name: 'dashboard', params: { id: response.data.user.id } });
+					// Set current loggedUserId in store
+					this.store.loggedUserId = response.data.user.id;
 				})
 				.catch(function (error) {
 					console.log(error);
 				});
 		},
+	},
+	created() {
+		// SPA authentication request
+		confAxios.get('/sanctum/csrf-cookie').then(response => {
+    	confAxios.post('/api/login', {
+				email: 'tommaso.tacconi@gmail.com',
+				password: 'provadaidai',
+				})
+				.then(response => {
+					console.log(response);
+				})
+		});
 	}
 }
 </script>
