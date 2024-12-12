@@ -12,7 +12,10 @@ export default {
 	},
 	methods: {
 		sendLoginData() {
-			axios.post('http://127.0.0.1:8000/api/login', {
+			// Single page application authentication request (confAxios is axios as configured in axios.js)
+			confAxios.get('sanctum/csrf-cookie')
+			.then(response => {
+				axios.post('http://127.0.0.1:8000/api/login', {
 				email: this.inputEmail,
 				password: this.inputPassword
 				})
@@ -20,27 +23,19 @@ export default {
 					console.log(response);
 					this.responseStatus = true;
 					// Redirect to current userId profile info 
-					this.$router.push({ name: 'dashboard', params: { id: response.data.user.id } });
+					this.$router.push({ name: 'dashboard', params: { id: response.data.data.id } });
 					// Set current loggedUserId in store
 					this.store.loggedUserId = response.data.user.id;
 				})
-				.catch(function (error) {
+				.catch(error => {
 					console.log(error);
-				});
-		},
+				})
+			})
+			.catch(error => {
+				console.log(error)
+			})
+		}
 	},
-	created() {
-		// SPA authentication request
-		confAxios.get('/sanctum/csrf-cookie').then(response => {
-    	confAxios.post('/api/login', {
-				email: 'tommaso.tacconi@gmail.com',
-				password: 'provadaidai',
-				})
-				.then(response => {
-					console.log(response);
-				})
-		});
-	}
 }
 </script>
 

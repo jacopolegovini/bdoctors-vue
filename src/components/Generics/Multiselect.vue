@@ -25,7 +25,7 @@ export default {
             axios.get(this.apiUrl)
                 .then(response => {
                     this.value = this.specializations;
-                    this.options = response.data.specializations;
+                    this.options = response.data.data;
                     console.log(response);
                 })
                 .catch(function (error) {
