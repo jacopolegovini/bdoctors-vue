@@ -13,7 +13,7 @@ export const store = reactive({
   sidebar: true,
 
   // Api uri
-  apiUri: 'http://localhost:8000/api/',
+  apiUri: 'http://127.0.0.1:8000/api/',
   // Api call for profile information
   informationPageId: ''
 })

@@ -1,5 +1,5 @@
 <script>
-import axios from 'axios';
+import axios from '@/plugins/axios';
 import { store } from '../../../../js/store.js';
 
 export default {

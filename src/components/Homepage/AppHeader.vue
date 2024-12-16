@@ -1,5 +1,5 @@
 <script>
-import axios from '../../axios';
+import axios from '@/plugins/axios';
 import { store } from '../../../js/store';
 import { RouterLink } from 'vue-router';
 
@@ -50,7 +50,7 @@ export default {
     <header class="general-header">
         <div class="container container-header d-flex">
             <section class="left-header d-flex">
-                <routerLink style="text-decoration: none; color: inherit;" :to="{ name: 'homepage' }">
+                <RouterLink style="text-decoration: none; color: inherit;" :to="{ name: 'homepage' }">
                     <div class="left-header-title-logo d-flex">
                         <div class="logo">
                             <div class="square-general square1"></div>
@@ -62,7 +62,7 @@ export default {
                             <h1>bdoctors</h1>
                         </div>
                     </div>
-                </routerLink>
+                </RouterLink>
                 <div class="search-bar">
                     <!-- Old search-bar -->
                     <!-- <div class="input-group search-form">
@@ -85,15 +85,15 @@ export default {
                 </div>
             </section>
             <div class="right-header d-flex" v-if="!$route.params.id">
-                <routerLink :to="{ name: 'register' }"><button class="button-logup"> Registrati</button></routerLink>
-                <routerLink :to="{ name: 'login' }"><button class="button-login"><i
-                            class="fa-solid fa-user-doctor"></i>Login</button></routerLink>
+                <RouterLink :to="{ name: 'register' }"><button class="button-logup"> Registrati</button></RouterLink>
+                <RouterLink :to="{ name: 'login' }"><button class="button-login"><i
+                            class="fa-solid fa-user-doctor"></i>Login</button></RouterLink>
             </div>
             <div class="right-header d-flex" v-if="$route.params.id">
                 <div class="user">
                     <div class="logout" v-if="logout">
-                        <router-link style="text-decoration: none; color: inherit;" to="/"><span
-                                class="logout-text">Logout</span></router-link>
+                        <RouterLink style="text-decoration: none; color: inherit;" to="/"><span
+                                class="logout-text">Logout</span></RouterLink>
                     </div>
                     <i class="fa-solid fa-user" @click="showLogout"></i>
                 </div>

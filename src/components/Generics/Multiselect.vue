@@ -1,13 +1,13 @@
 <script>
 import VueMultiselect from 'vue-multiselect';
-import axios from '../../axios';
+import axios from '../../plugins/axios';
 
 export default {
     data() {
         return {
             value: [],
             options: [],
-            apiUrl: "/api/specializations",
+            apiUrl: "http://127.0.0.1:8000/api/specializations", // Use full URL
             loading: false,
             error: null,
             retryCount: 0
@@ -32,11 +32,19 @@ export default {
             this.error = null;
 
             try {
-                const response = await axios.get(this.apiUrl);
+                const response = await axios.get(this.apiUrl, {
+                    withCredentials: true,
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': 'http://127.0.0.1:8000',
+                        'Access-Control-Allow-Credentials': true
+                    }
+                });
                 console.log('API Response:', response.data);
 
-                if (response.data.success && Array.isArray(response.data.data)) {
-                    this.options = response.data.data;
+                if (response.data.success && Array.isArray(response.data.specializations)) {
+                    this.options = response.data.specializations;
                     if (this.specializations && this.specializations.length > 0) {
                         this.value = this.specializations;
                     }
