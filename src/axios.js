@@ -2,6 +2,19 @@ import axios from 'axios';
 
 axios.defaults.baseURL = 'http://localhost:8000'; // URL del tuo back-end Laravel
 axios.defaults.withCredentials = true;  // Permetti l'invio dei cookie nelle richieste
+// Impostazioni per inviare automaticamente il token CSRF con ogni richiesta
+
+axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+
+// Configurazione per inviare il token CSRF tramite header
+axios.defaults.headers.common['X-XSRF-TOKEN'] = getCookie('XSRF-TOKEN');
+
+// Funzione per ottenere il cookie XSRF-TOKEN
+function getCookie(name) {
+    let value = '; ' + document.cookie;
+    let parts = value.split('; ' + name + '=');
+    if (parts.length === 2) return parts.pop().split(';').shift();
+}
 
 export default axios;
 

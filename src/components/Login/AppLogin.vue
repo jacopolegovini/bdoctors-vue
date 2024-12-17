@@ -11,20 +11,48 @@ export default {
 	},
 	methods: {
 		sendLoginData() {
-			axios.post('http://127.0.0.1:8000/api/login', {
-				email: this.inputEmail,
-				password: this.inputPassword
+    		axios.post('http://localhost:8000/login', { email: this.inputEmail, password: this.inputPassword })
+       		.then(response => {
+        		console.log('Logged in successfully:', response);
+				this.$router.push({ name: 'dashboard', params: { id: response.data.user.id } })
+    		})
+        	.catch(error => {
+        		console.error('Login failed:', error.response);
+    		});
+			axios.get('/api/user')
+			.then(response => {
+				console.log('User data:', response.data);
 			})
-				.then(response => {
-					console.log(response);
-					this.responseStatus = true;
-					this.$router.push({ name: 'dashboard', params: { id: response.data.user.id } })
-				})
-				.catch(function (error) {
-					console.log(error);
-				});
+			.catch(error => {
+				console.error('User data request failed:', error);
+			});
 		},
-	}
+			// axios.post('http://127.0.0.1:8000/api/login', {
+			// 	email: this.inputEmail,
+			// 	password: this.inputPassword
+			// })
+			// 	.then(response => {
+			// 		console.log(response);
+			// 		this.responseStatus = true;
+			// 		this.$router.push({ name: 'dashboard', params: { id: response.data.user.id } })
+			// 	})
+			// 	.catch(function (error) {
+			// 		console.log(error);
+			// 	});
+		getCookie() {
+			axios.get('/sanctum/csrf-cookie')
+    		.then(response => {
+       			console.log('CSRF cookie set', response);
+    		})
+			.catch(error => {
+          		console.error('Errore nel recupero del cookie CSRF', error);
+       		});
+		},		
+	},
+	
+	created() {
+		this.getCookie();
+	},
 }
 </script>
 

@@ -83,7 +83,8 @@ export default {
 			// Runs the validation to control if it can move forward
 			if (!this.checkFormValidity()) return
 			// Makes the call
-			axios.post('http://127.0.0.1:8000/api/register', {
+			axios.get('/sanctum/csrf-cookie').then(response => {
+				axios.post('http://127.0.0.1:8000/api/register', {
 				first_name: this.firstName,
 				last_name: this.lastName,
 				home_address: this.homeAddress,
@@ -92,18 +93,20 @@ export default {
 				password: this.password,
 				password_confirmation: this.passwordConfirmation
 			})
-				.then(response => {
-					console.log(response);
-					this.responseStatus = true;
-					this.isAlertShown = true;
-					this.$router.push('/user/login')
-
-				})
-				.catch(error => {
-					console.log(error);
-					// Trigger the alert by variable isAlertShown
-					this.isAlertShown = true;
-				});
+			.then(response => {
+				console.log(response);
+				this.responseStatus = true;
+				this.isAlertShown = true;
+				this.$router.push('/user/login')
+			})
+			.catch(error => {
+				console.log(error);
+				// Trigger the alert by variable isAlertShown
+				this.isAlertShown = true;
+			});
+			}).catch(error => {
+        		console.error('CSRF token request failed', error.response);
+    		});	
 		},
 	},
 	components: {
