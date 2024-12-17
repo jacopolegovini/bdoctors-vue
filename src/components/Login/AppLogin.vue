@@ -11,7 +11,11 @@ export default {
 	},
 	methods: {
 		sendLoginData() {
-    		axios.post('http://localhost:8000/login', { email: this.inputEmail, password: this.inputPassword })
+    		axios.post('http://localhost:8000/login', { email: this.inputEmail, password: this.inputPassword }{
+    	headers: {
+        	'X-CSRF-TOKEN': window.Laravel.csrfToken // Token CSRF (assicurati che sia disponibile)
+    	}
+			})
        		.then(response => {
         		console.log('Logged in successfully:', response);
 				this.$router.push({ name: 'dashboard', params: { id: response.data.user.id } })
